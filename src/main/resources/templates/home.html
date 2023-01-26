@@ -12,7 +12,10 @@
     <link rel="stylesheet" th:href="@{\plugins\datatable\datatables.min.css}" />
   </head>
   <body>
+    <!-- Navbar -->
     <div th:replace="fragments/navbar::navbar"></div>
+    <!-- End Navbar -->
+    
     <!-- Table -->
     <div class="container my-5">
       <div class="d-flex gap-3 align-items-center">
@@ -55,56 +58,6 @@
     ></script>
     <script th:src="@{\plugins\jQuery-3.6.0\jquery-3.6.0.min.js}"></script>
     <script th:src="@{\plugins\datatable\datatables.min.js}"></script>
-
-    <script>
-      $(document).ready(function () {
-        let size = $("#size").val();
-        let currentPage = 0;
-        const myTable = $("#housesTable").DataTable({
-          paging: false,
-          ordering: false,
-          info: false,
-        });
-        $("#size").on("change", function () {
-          if ($(this).val().includes("."))
-            return alert("Please input a number integer");
-          size = $(this).val();
-          fetchData(currentPage, $(this).val());
-        });
-        $(".pagination").on("click", ".page-item a", function () {
-          fetchData($(this).attr("data-page"), size);
-        });
-        fetchData(currentPage, size);
-        function fetchData(page = 0, size = 10) {
-          myTable.clear();
-          $.get(
-            `http://localhost:4040/api/houses/views/page?page=${page}&size=${size}`,
-            function (data) {
-              let pageItem = "";
-              for (let num = 0; num < data.totalPage; num++) {
-                let no = num + 1;
-                if (data.currentPage == num) {
-                  pageItem += `<li class="page-item active"><a class="page-link" href="#" data-page="${num}">${no}</a></li>`;
-                } else {
-                  pageItem += `<li class="page-item"><a class="page-link" href="#" data-page="${num}">${no}</a></li>`;
-                }
-              }
-              $(".pagination").html(pageItem);
-              $.each(data.houses, function (key, value) {
-                myTable.row
-                  .add([
-                    key + 1,
-                    value.address,
-                    value.owner ? value.owner.fullName : "null",
-                    value.city ? value.city.cityName : "null",
-                    value.city ? value.city.province.provinceName : "null",
-                  ])
-                  .draw(false);
-              });
-            }
-          );
-        }
-      });
-    </script>
+    <script th:src="@{plugins\script\dataTable.js}"></script>
   </body>
 </html>
