@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class HomeController {
 
-    @GetMapping("/home")
+    @GetMapping("/houses")
     public String home(Model model) {
-        model.addAttribute("title", "Home Page Pagination");
-        return "home";
+        model.addAttribute("title", "Houses Page Pagination");
+        return "houses";
     }
 }
