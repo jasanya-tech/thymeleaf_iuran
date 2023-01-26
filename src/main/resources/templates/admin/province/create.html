@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html th:replace="~{layouts/admin :: layout(~{::section})}">
+  <body>
+    <section>
+      <div class="card shadow">
+        <div class="card-body">
+          <div class="title text-center">
+            <h3 th:text="${title}" class="text-capitalaize"></h3>
+          </div>
+          <form action="#" endpoint-name="provinces" id="create" method="POST">
+            <div class="mb-3">
+              <label for="provinceName" class="form-label">Nama Provinsi</label>
+              <input
+                type="text"
+                name="provinceName"
+                id="provinceName"
+                class="form-control"
+              />
+            </div>
+            <div class="mb-3">
+              <button type="submit" class="btn btn-primary">submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>
