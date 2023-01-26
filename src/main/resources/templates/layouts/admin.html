@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html th:fragment="layout (content)" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title th:text="${title}"></title>
+    <!-- Load Bootstrap 5 -->
+    <link
+      rel="stylesheet"
+      th:href="@{/plugins\Bootstrap-5.2.3\css\bootstrap.min.css}"
+    />
+    <!-- Load Data Table -->
+    <link rel="stylesheet" th:href="@{\plugins\datatable\datatables.min.css}" />
+    <!-- load jQuery -->
+    <script th:src="@{\plugins\jQuery-3.6.0\jquery-3.6.0.min.js}"></script>
+    <script th:src="@{\js\main.js}"></script>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <div th:replace="fragments/navbar::navbar(${navbarTitle})"></div>
+    <div th:replace="fragments/sidebar::sidebar(${navbarTitle})"></div>
+    <!-- End Navbar -->
+    <style>
+      #content {
+        margin: 20px calc(240px + 20px);
+      }
+    </style>
+    <div th:insert="${content}" id="content"></div>
+    <script
+      th:src="@{\plugins\Bootstrap-5.2.3\js\bootstrap.bundle.min.js}"
+    ></script>
+    <script th:src="@{\plugins\datatable\datatables.min.js}"></script>
+  </body>
+</html>
