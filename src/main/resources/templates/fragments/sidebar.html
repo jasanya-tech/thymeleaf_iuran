@@ -2,14 +2,13 @@
   <style>
     /* Fixed sidenav, full height */
     .sidenav {
-      margin-top: 45px;
       height: 100%;
       width: 240px;
       position: fixed;
-      z-index: 1;
+      z-index: 10;
       top: 0;
       left: 0;
-      background-color: #4d72aa;
+      background-color: #171717;
       overflow-x: hidden;
       padding-top: 20px;
     }
@@ -33,7 +32,7 @@
     /* On mouse-over */
     .sidenav a:hover,
     .dropdown-btn:hover {
-      color: #171717;
+      color: #4d72aa;
     }
 
     /* Main content */
@@ -46,7 +45,7 @@
     /* Add an active class to the active dropdown button */
     .active {
       background-color: white;
-      color: #171717;
+      color: #4d72aa;
     }
 
     /* Dropdown container (hidden by default). Optional: add a lighter background color and some left padding to change the design of the dropdown content */
@@ -63,6 +62,10 @@
     }
   </style>
   <div class="sidenav">
+    <div class="title text-light h6 px-3 text-uppercase">
+      Iuran Bulanan Warga
+    </div>
+    <hr class="text-secondary" />
     <a href="/admin">Dashboard</a>
     <button class="dropdown-btn d-flex justify-content-between pe-3">
       Master
@@ -73,7 +76,16 @@
       <a href="/admin/cities">Kota / Kabupaten</a>
       <a href="/admin/houses">Rumah</a>
       <a href="/admin/duesTypes">Jenis Iuran</a>
-      <a href="#">Iuran Per Bulan</a>
+      <a href="/admin/monthlyDues">Iuran Per Bulan</a>
+    </div>
+    <button class="dropdown-btn d-flex justify-content-between pe-3">
+      Transaction
+      <i class="dropdown-toggle"></i>
+    </button>
+    <div class="dropdown-container">
+      <a href="/admin/transactions">Pembayaran Iuran</a>
+      <a href="/admin/cities">Setting Bulan Berjalan</a>
+      <a href="/admin/cities">Setting Iuran Bulanan</a>
     </div>
   </div>
   <script>

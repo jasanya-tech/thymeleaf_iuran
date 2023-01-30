@@ -4,9 +4,6 @@
     <section>
       <div class="card shadow">
         <div class="card-body">
-          <div class="title text-center">
-            <h3 th:text="${title}" class="text-capitalaize"></h3>
-          </div>
           <form action="#" endpoint-name="duesTypes" id="create" method="POST">
             <div class="mb-3">
               <label for="duesName" class="form-label">Nama Iuran</label>
@@ -19,12 +16,7 @@
             </div>
             <div class="mb-3">
               <label for="cost" class="form-label">Biaya</label>
-              <input
-                type="number"
-                name="cost"
-                id="cost"
-                class="form-control"
-              />
+              <input type="number" name="cost" id="cost" class="form-control" />
             </div>
             <div class="mb-3">
               <button type="submit" class="btn btn-primary">submit</button>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html th:replace="~{layouts/admin :: layout(~{::section})}">
+  <body>
+    <section>
+      <div id="data-id" th:attr="data-houseId=${dataId}"></div>
+      <div class="card shadow">
+        <div class="card-body">
+          <div class="row row-cols-1 row-cols-md-2">
+            <div class="col">
+              <!-- Swiper -->
+              <div class="swiper picture-houses">
+                <div class="swiper-wrapper" id="picture-slides"></div>
+                <div class="swiper-pagination"></div>
+              </div>
+            </div>
+            <div class="col">
+              <table>
+                <tr>
+                  <td>Nama Rumah</td>
+                  <td class="px-2">:</td>
+                  <td id="detail-houseName">Tidak di ketahui</td>
+                </tr>
+                <tr>
+                  <td>Pemilik Rumah</td>
+                  <td class="px-2">:</td>
+                  <td id="detail-owner">Tidak di ketahui</td>
+                </tr>
+                <tr>
+                  <td>Jumlah Penghuni</td>
+                  <td class="px-2">:</td>
+                  <td id="detail-totalOccupants">Tidak di ketahui</td>
+                </tr>
+                <tr>
+                  <td>Alamat</td>
+                  <td class="px-2">:</td>
+                  <td id="detail-address">Tidak di ketahui</td>
+                </tr>
+                <tr>
+                  <td>Kota / Kabupaten</td>
+                  <td class="px-2">:</td>
+                  <td id="detail-city">Tidak di ketahui</td>
+                </tr>
+                <tr>
+                  <td>Provinsi</td>
+                  <td class="px-2">:</td>
+                  <td id="detail-province">Tidak di ketahui</td>
+                </tr>
+                <tr>
+                  <td>Daftar Tagihan</td>
+                  <td class="px-2">:</td>
+                </tr>
+              </table>
+              <div class="row row-cols-2 row-cols-md-3" id="dues"></div>
+              <div class="text-end mt-3">
+                <h6>TOTAL</h6>
+                <h6 id="detail-totalCost">Rp.20.000</h6>
+              </div>
+              <form action="#" id="form-dues" method="POST" class="d-none">
+                <div class="row row-cols-2 row-cols-3" id="data-dues"></div>
+                <div class="row mt-2">
+                  <button type="submit" class="btn btn-success">Save</button>
+                </div>
+              </form>
+              <div class="row mt-3">
+                <button class="btn btn-primary" id="edit-dues">EDIT</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script>
+        $(document).ready(function () {
+          $("#edit-dues").on("click", function () {
+            $(this).addClass("d-none");
+            $("#form-dues").removeClass("d-none");
+          });
+        });
+      </script>
+    </section>
+  </body>
+</html>

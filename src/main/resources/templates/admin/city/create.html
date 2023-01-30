@@ -4,15 +4,17 @@
     <section>
       <div class="card shadow">
         <div class="card-body">
-          <div class="title text-center">
-            <h3 th:text="${title}" class="text-capitalaize"></h3>
-          </div>
           <form action="#" endpoint-name="cities" id="create" method="POST">
             <div class="mb-3">
               <label for="provinceName" class="form-label"
                 >Pilih Provinsi</label
               >
-              <select name="province" id="select-province" class="form-select">
+              <select
+                name="province"
+                id="province"
+                tableName="provinces"
+                class="form-select"
+              >
                 <option value="">Pilih salah satu</option>
               </select>
             </div>

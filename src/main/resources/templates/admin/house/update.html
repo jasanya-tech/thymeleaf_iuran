@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html th:replace="~{layouts/admin :: layout(~{::section})}">
+  <body>
+    <section>
+      <div id="data-id" th:attr="data-houseId=${dataId}"></div>
+      <div class="card shadow">
+        <div class="card-body">
+          <form action="#" endpoint-name="houses" id="update" method="POST">
+            <div class="row row-cols-1 row-cols-md-2">
+              <div class="col">
+                <!-- Swiper -->
+                <div class="swiper picture-houses">
+                  <div class="swiper-wrapper" id="picture-slides"></div>
+                  <div class="swiper-pagination"></div>
+                </div>
+              </div>
+              <div class="col">
+                <div class="mb-3">
+                  <label for="picture1" class="form-label"
+                    >Gambar Rumah To Directory Api</label
+                  >
+                  <input type="file" id="pictureUpload" class="form-control" />
+                </div>
+                <div class="mb-3">
+                  <label for="picture1" class="form-label"
+                    >Gambar Rumah To Database</label
+                  >
+                  <input type="file" id="pictureSource" class="form-control" />
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="dataId" class="form-label">Rumah ID</label>
+              <input
+                type="text"
+                class="form-control"
+                th:attr="value=${dataId}"
+                readonly
+                id="dataId"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="houseName" class="form-label">Nama Rumah</label>
+              <input
+                type="text"
+                name="houseName"
+                id="houseName"
+                class="form-control"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="owner" class="form-label">Pilih Owner</label>
+              <select
+                name="owner"
+                id="owner"
+                tableName="users"
+                class="form-select"
+              >
+                <option value="">Pilih salah satu</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="province" class="form-label">Provinsi</label>
+              <select id="province" tableName="provinces" class="form-select">
+                <option value="">Pilih salah satu</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="city" class="form-label">City</label>
+              <select
+                name="city"
+                id="city"
+                tableName="cities"
+                class="form-select"
+              >
+                <option value="">Pilih salah satu</option>
+              </select>
+            </div>
+            <div class="mb-3">
+              <label for="street" class="form-label">Nama Jalan</label>
+              <textarea
+                name="street"
+                id="street"
+                class="form-control"
+                rows="3"
+              ></textarea>
+            </div>
+            <div class="mb-3 row row-cols-3">
+              <div class="col">
+                <label for="houseNumber" class="form-label">Nomor Rumah</label>
+                <input
+                  type="text"
+                  name="houseNumber"
+                  id="houseNumber"
+                  class="form-control"
+                />
+              </div>
+              <div class="col">
+                <label for="rt" class="form-label">RT</label>
+                <input type="text" name="rt" id="rt" class="form-control" />
+              </div>
+              <div class="col">
+                <label for="rw" class="form-label">RW</label>
+                <input type="text" name="rw" id="rw" class="form-control" />
+              </div>
+            </div>
+            <div class="mb-3">
+              <button type="submit" class="btn btn-primary">submit</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+.picture-houses .swiper-slide {
+  height: 360px;
+}
+
+#picture-slides img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
