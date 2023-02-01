@@ -12,22 +12,109 @@
           >
             <div class="mb-3">
               <label for="ownerId" class="form-label">Nama Pemilik</label>
-              <input
-                list="owners"
-                name="owner"
-                id="ownerInput"
-                class="form-control"
-              />
-              <datalist id="owners">
-                <option value="Syahrul" />
-                <option value="Laila" />
-                <option value="Yesicha" />
-                <option value="Maulana" />
-              </datalist>
+              <select
+                name="ownerId"
+                id="full"
+                class="form-select"
+                tableName="users"
+              >
+                <option value="">Pilih Pemilik</option>
+              </select>
             </div>
             <script>
-              $("#ownerInput").on("change", function () {
+              $("select[name='ownerId']").on("change", function (e) {
                 $("#daftar-rumah").removeClass("d-none");
+                let result = [];
+                $.get(
+                  `${urlApi}/transactions/billingList/Users/${e.target.value}`,
+                  function (response) {
+                    console.log(response);
+                    $.each(response, function (index, value) {
+                      result.push(`<div class="col">
+                                  <div class="row row-cols-2">
+                                    <div class="col">
+                                      <!-- Swiper -->
+                                      <div class="swiper picture-houses">
+                                        <div class="swiper-wrapper" id="picture-slides">`);
+                      let pictures = ``;
+                      value.pictures.forEach((picture) => {
+                        pictures += `<div class="swiper-slide">
+                                      <img src="${urlApi}${picture.path}">
+                                    </div>`;
+                      });
+                      console.log(pictures);
+                      result.push(pictures);
+                      result.push(`</div>
+                      <div class="swiper-pagination"></div>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <table>
+                      <tr>
+                        <td>Nama Rumah</td>
+                        <td class="px-2">:</td>
+                        <td id="detail-houseName">${value.houseName}</td>
+                      </tr>
+                      <tr>
+                        <td>Pemilik Rumah</td>
+                        <td class="px-2">:</td>
+                        <td id="detail-owner">${value.ownerName}</td>
+                      </tr>
+                      <tr>
+                        <td>Jumlah Penghuni</td>
+                        <td class="px-2">:</td>
+                        <td id="detail-totalOccupants">${
+                          value.totalOccupants
+                        }</td>
+                      </tr>
+                      <tr>
+                        <td>Alamat</td>
+                        <td class="px-2">:</td>
+                        <td id="detail-address">${value.address}</td>
+                      </tr>
+                      <tr>
+                        <td>Jumlah Bulan Tagihan</td>
+                        <td class="px-2">:</td>
+                        <td id="detail-city">${value.numBillMonths} Bulan</td>
+                      </tr>
+                    </table>
+                    <div class="text-end mt-3">
+                      <h6>TOTAL</h6>
+                      <h6 id="detail-totalCost">${formatRupiah(
+                        value.totalCost,
+                        true
+                      )}</h6>
+                    </div>`);
+                      if (value.totalCost == 0) {
+                        result.push(`<div class="row mt-3">
+                                      <button class="btn btn-success">Lunas</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>`);
+                      } else {
+                        result.push(`<div class="row mt-3">
+                                      <button class="btn btn-warning">Bayar Rumah Ini</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>`);
+                      }
+                    });
+                    console.log(result);
+                    $("#listHouse").html(result.join(""));
+                    new Swiper(".picture-houses", {
+                      pagination: {
+                        el: ".swiper-pagination",
+                        type: "fraction",
+                      },
+                      autoplay: {
+                        delay: 2500,
+                        disableOnInteraction: false,
+                      },
+                    });
+                  }
+                );
               });
             </script>
           </form>
@@ -35,122 +122,7 @@
       </div>
       <div class="card shadow mt-3 d-none" id="daftar-rumah">
         <div class="card-body">
-          <div class="row row-cols-1 row-cols-md-2">
-            <div class="col">
-              <div class="row row-cols-2">
-                <div class="col">
-                  <!-- Swiper -->
-                  <div class="swiper picture-houses">
-                    <div class="swiper-wrapper" id="picture-slides"></div>
-                    <div class="swiper-pagination"></div>
-                  </div>
-                </div>
-                <div class="col">
-                  <table>
-                    <tr>
-                      <td>Nama Rumah</td>
-                      <td class="px-2">:</td>
-                      <td id="detail-houseName">Tidak di ketahui</td>
-                    </tr>
-                    <tr>
-                      <td>Pemilik Rumah</td>
-                      <td class="px-2">:</td>
-                      <td id="detail-owner">Tidak di ketahui</td>
-                    </tr>
-                    <tr>
-                      <td>Jumlah Penghuni</td>
-                      <td class="px-2">:</td>
-                      <td id="detail-totalOccupants">Tidak di ketahui</td>
-                    </tr>
-                    <tr>
-                      <td>Alamat</td>
-                      <td class="px-2">:</td>
-                      <td id="detail-address">Tidak di ketahui</td>
-                    </tr>
-                    <tr>
-                      <td>Kota / Kabupaten</td>
-                      <td class="px-2">:</td>
-                      <td id="detail-city">Tidak di ketahui</td>
-                    </tr>
-                    <tr>
-                      <td>Provinsi</td>
-                      <td class="px-2">:</td>
-                      <td id="detail-province">Tidak di ketahui</td>
-                    </tr>
-                    <tr>
-                      <td>Daftar Tagihan</td>
-                      <td class="px-2">:</td>
-                    </tr>
-                  </table>
-                  <div class="row row-cols-2 row-cols-md-3" id="dues"></div>
-                  <div class="text-end mt-3">
-                    <h6>TOTAL</h6>
-                    <h6 id="detail-totalCost">Rp.0</h6>
-                  </div>
-                  <div class="row mt-3">
-                    <button class="btn btn-success">Lunas</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="col">
-              <div class="row row-cols-2">
-                <div class="col">
-                  <!-- Swiper -->
-                  <div class="swiper picture-houses">
-                    <div class="swiper-wrapper" id="picture-slides"></div>
-                    <div class="swiper-pagination"></div>
-                  </div>
-                </div>
-                <div class="col">
-                  <table>
-                    <tr>
-                      <td>Nama Rumah</td>
-                      <td class="px-2">:</td>
-                      <td id="detail-houseName">Tidak di ketahui</td>
-                    </tr>
-                    <tr>
-                      <td>Pemilik Rumah</td>
-                      <td class="px-2">:</td>
-                      <td id="detail-owner">Tidak di ketahui</td>
-                    </tr>
-                    <tr>
-                      <td>Jumlah Penghuni</td>
-                      <td class="px-2">:</td>
-                      <td id="detail-totalOccupants">Tidak di ketahui</td>
-                    </tr>
-                    <tr>
-                      <td>Alamat</td>
-                      <td class="px-2">:</td>
-                      <td id="detail-address">Tidak di ketahui</td>
-                    </tr>
-                    <tr>
-                      <td>Kota / Kabupaten</td>
-                      <td class="px-2">:</td>
-                      <td id="detail-city">Tidak di ketahui</td>
-                    </tr>
-                    <tr>
-                      <td>Provinsi</td>
-                      <td class="px-2">:</td>
-                      <td id="detail-province">Tidak di ketahui</td>
-                    </tr>
-                    <tr>
-                      <td>Daftar Tagihan</td>
-                      <td class="px-2">:</td>
-                    </tr>
-                  </table>
-                  <div class="row row-cols-2 row-cols-md-3" id="dues"></div>
-                  <div class="text-end mt-3">
-                    <h6>TOTAL</h6>
-                    <h6 id="detail-totalCost">Rp.0</h6>
-                  </div>
-                  <div class="row mt-3">
-                    <button class="btn btn-warning">Bayar Rumah Ini</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div class="row row-cols-1 row-cols-md-2" id="listHouse"></div>
           <div class="row mt-3">
             <button type="button" class="btn btn-warning">
               Bayar Semuanya
