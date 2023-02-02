@@ -24,6 +24,13 @@ public class HouseController {
         return "admin/house/create";
     }
 
+    @GetMapping("/create/json")
+    public String createWithJson(Model model) {
+        model.addAttribute("title", "Tambah Rumah");
+        model.addAttribute("navbarTitle", "Tambah Rumah");
+        return "admin/house/create-json";
+    }
+
     @GetMapping("/update/{id}")
     public String update(Model model, @PathVariable("id") String id) {
         model.addAttribute("title", "Rubah Data Rumah");

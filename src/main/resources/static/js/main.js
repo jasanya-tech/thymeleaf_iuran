@@ -1,4 +1,14 @@
 const urlApi = "http://localhost:4040/api";
+if (window.location.pathname != "/auth") {
+  if (readJwt() == null) {
+    window.location.href = "/auth"
+  }
+}
+if (window.location.pathname == "/auth") {
+  if (readJwt() != null) {
+    window.location.href = "/admin"
+  }
+}
 function formatRupiah(angka, prefix) {
   var number_string = angka.toString();
   split = number_string.split(',');
@@ -16,6 +26,15 @@ function formatRupiah(angka, prefix) {
   return prefix == undefined ? rupiah : (rupiah ? 'Rp. ' + rupiah : '');
 }
 
+function saveJwtToStorage(txtJwtTokenValue) {
+  sessionStorage.setItem("jwtToken", txtJwtTokenValue);
+}
+
+function readJwt() {
+  var jwtToken = sessionStorage.getItem("jwtToken");
+  return jwtToken;
+}
+
 $(document).ready(function () {
   // Getting data from api with pagination
   class apiFetchPageinate {
@@ -29,8 +48,11 @@ $(document).ready(function () {
     init() {
       let renameTable = this.tableName;
       thisTable.clear();
-      $.get(`${urlApi}/${renameTable.replace("_", "/")}/views/page?page=${this.page}&size=${this.size}`,
-        function (data) {
+      $.ajax({
+        url: `${urlApi}/${renameTable.replace("_", "/")}/views/page?page=${this.page}&size=${this.size}`,
+        method: "GET",
+        headers: { "Authorization": `Bearer ${readJwt()}` },
+        success: function (data) {
           let pageItem = "";
           for (let num = 0; num < data.totalPage; num++) {
             let no = num + 1;
@@ -57,12 +79,15 @@ $(document).ready(function () {
             case 'houses_monthlyDues':
               monthlyDues(data.data)
               break
+            case 'transactions':
+              transactions(data.data)
+              break
             default:
               alert(renameTable)
               break;
           }
         }
-      );
+      });
     }
   }
 
@@ -192,11 +217,29 @@ $(document).ready(function () {
           value.address,
           formatRupiah(value.totalCost, true),
           `<div class="d-flex justify-content-center gap-2">
-          <a
-            href="/admin/monthlyDues/detail/${value.id}"
-            class="btn btn-sm btn-info px-3"
-            >Detail</a
-          >
+        <a
+        href="/admin/monthlyDues/detail/${value.id}"
+        class="btn btn-sm btn-info px-3"
+        >Detail</a
+        >
+        </div>`
+        ])
+        .draw(false);
+    });
+  }
+  function transactions(data) {
+    $.each(data, function (key, value) {
+      thisTable.row
+        .add([
+          key + 1,
+          value.house.houseName,
+          value.userId.fullName,
+          value.house.street,
+          formatRupiah(value.totalCost, true),
+          `<div class="d-flex justify-content-center gap-2">
+          <button type="button" id="hapus" data-id="${value.id}" class="btn btn-sm btn-danger">
+            Hapus
+          </button>
         </div>`
         ])
         .draw(false);
@@ -217,6 +260,7 @@ $(document).ready(function () {
       type: "POST",
       url: `${urlApi}/${endPoint}`,
       data: JSON.stringify(data),
+      headers: { "Authorization": `Bearer ${readJwt()}` },
       dataType: "json",
       contentType: 'application/json',
       error: function (xhr) {
@@ -245,6 +289,7 @@ $(document).ready(function () {
     $.ajax({
       type: "PUT",
       url: `${urlApi}/${endPoint}/${id}`,
+      headers: { "Authorization": `Bearer ${readJwt()}` },
       data: JSON.stringify(data),
       dataType: "json",
       contentType: 'application/json',
@@ -267,6 +312,7 @@ $(document).ready(function () {
       $.ajax({
         type: "DELETE",
         url: `${urlApi}/${tableName}/${id}`,
+        headers: { "Authorization": `Bearer ${readJwt()}` },
         error: function (xhr) {
           alert(xhr.responseJSON.message)
         },
@@ -287,6 +333,7 @@ $(document).ready(function () {
     $.ajax({
       type: "GET",
       url: `${urlApi}/${endPoint}/${dataId}`,
+      headers: { "Authorization": `Bearer ${readJwt()}` },
       error: function (xhr) {
         alert(xhr.responseJSON.message)
       },
@@ -304,19 +351,24 @@ $(document).ready(function () {
                   getDataOptionSelectProvince(response[key].province.id)
                   tableName = `cities/province/${response[key].province.id}`
                 }
-                $.get(`${urlApi}/${tableName}`, function (responseSelect) {
-                  let inputName = $(`#${key}`).attr("name");
-                  if (inputName == 'owner') {
-                    inputName = 'full'
-                  }
-                  responseSelect.forEach((value) => {
-                    if (response[key].id == value.id) {
-                      $(`#${key}`).append(`<option selected value="${value.id}">${value[inputName + "Name"]}</option>`);
-                    } else {
-                      $(`#${key}`).append(`<option value="${value.id}">${value[inputName + "Name"]}</option>`);
+                $.ajax({
+                  url: `${urlApi}/${tableName}`,
+                  method: "GET",
+                  headers: { "Authorization": `Bearer ${readJwt()}` },
+                  success: function (responseSelect) {
+                    let inputName = $(`#${key}`).attr("name");
+                    if (inputName == 'owner') {
+                      inputName = 'full'
                     }
-                  })
-                })
+                    responseSelect.forEach((value) => {
+                      if (response[key].id == value.id) {
+                        $(`#${key}`).append(`<option selected value="${value.id}">${value[inputName + "Name"]}</option>`);
+                      } else {
+                        $(`#${key}`).append(`<option value="${value.id}">${value[inputName + "Name"]}</option>`);
+                      }
+                    })
+                  }
+                });
                 break
               case "TEXTAREA":
                 $(`#${key}`).html(response[key]);
@@ -332,32 +384,43 @@ $(document).ready(function () {
 
   // get data option of select province 
   function getDataOptionSelectProvince(provinceId) {
-    $.get(`${urlApi}/provinces`, function (response) {
-      response.forEach((valueResponse, keyResponse) => {
-        if (provinceId == valueResponse.id) {
-          $(`#province`).append(`<option selected value="${valueResponse.id}">${valueResponse["provinceName"]}</option>`);
-        } else {
-          $(`#province`).append(`<option value="${valueResponse.id}">${valueResponse[`provinceName`]}</option>`);
-        }
-      })
+    $.ajax({
+      url: `${urlApi}/provinces`,
+      method: "GET",
+      headers: { "Authorization": `Bearer ${readJwt()}` },
+      success: function (response) {
+        response.forEach((valueResponse, keyResponse) => {
+          if (provinceId == valueResponse.id) {
+            $(`#province`).append(`<option selected value="${valueResponse.id}">${valueResponse["provinceName"]}</option>`);
+          } else {
+            $(`#province`).append(`<option value="${valueResponse.id}">${valueResponse[`provinceName`]}</option>`);
+          }
+        })
+      }
     })
   }
 
   // code run when province change selected
   $('#province').on('change', function () {
     let provinceId = $(this).val();
-    $.get(`${urlApi}/cities/province/${provinceId}`, function (response) {
-      $(`#city`).removeAttr('disabled');
-      let options = `<option value="">Pilih salah satu</option>`;
-      response.forEach((valueResponse, keyResponse) => {
-        options += `<option value="${valueResponse.id}">${valueResponse[`cityName`]}</option>`;
-      })
-      $(`#city`).html(options);
-    }).fail(function (err) {
-      $(`#city`).html(`<option value="">Pilih salah satu</option>`);
-      $(`#city`).attr('disabled', true);
-      alert(JSON.parse(err.responseText).message);
-    })
+    $.ajax({
+      url: `${urlApi}/cities/province/${provinceId}`,
+      headers: { "Authorization": `Bearer ${readJwt()}` },
+      method: "GET",
+      error: function (err) {
+        $(`#city`).html(`<option value="">Pilih salah satu</option>`);
+        $(`#city`).attr('disabled', true);
+        alert(JSON.parse(err.responseText).message);
+      },
+      success: function (response) {
+        $(`#city`).removeAttr('disabled');
+        let options = `<option value="">Pilih salah satu</option>`;
+        response.forEach((valueResponse, keyResponse) => {
+          options += `<option value="${valueResponse.id}">${valueResponse[`cityName`]}</option>`;
+        })
+        $(`#city`).html(options);
+      }
+    });
   })
 
   // code run when path indludes create name
@@ -367,11 +430,16 @@ $(document).ready(function () {
       if (value.disabled) return;
       let nameId = value.id;
       let tableName = $(this).attr('tableName');
-      $.get(`${urlApi}/${tableName}`, function (response) {
-        response.forEach((valueResponse, keyResponse) => {
-          $(`#${nameId}`).append(`<option value="${valueResponse.id}">${valueResponse[`${nameId}Name`]}</option>`);
-        })
-      })
+      $.ajax({
+        url: `${urlApi}/${tableName}`,
+        headers: { "Authorization": `Bearer ${readJwt()}` },
+        method: "GET",
+        success: function (response) {
+          response.forEach((valueResponse, keyResponse) => {
+            $(`#${nameId}`).append(`<option value="${valueResponse.id}">${valueResponse[`${nameId}Name`]}</option>`);
+          })
+        }
+      });
     })
   }
 
@@ -387,6 +455,7 @@ $(document).ready(function () {
       $.ajax({
         type: "POST",
         url: `${urlApi}/houses/upload/source/${houseId}`,
+        headers: { "Authorization": `Bearer ${readJwt()}` },
         data: formData,
         contentType: false,
         processData: false,
@@ -413,6 +482,7 @@ $(document).ready(function () {
     $.ajax({
       type: "POST",
       url: `${urlApi}/houses/upload/picture/${houseId}`,
+      headers: { "Authorization": `Bearer ${readJwt()}` },
       data: formData,
       contentType: false,
       processData: false,
@@ -447,62 +517,73 @@ $(document).ready(function () {
     // Load data from API for content in detail page
     const fetchDetailMonthlyDuesHouse = () => {
       let houseId = $('#data-id').attr('data-houseId');
-      $.get(`${urlApi}/houses/monthlyDues/detail/${houseId}`, function (response) {
-        // console.log(JSON.stringify(response));
-        response.pictures.forEach(function (value) {
-          let pictureDiv = `<div class="swiper-slide">
-                              <img src="${urlApi}${value}">
-                            </div>`
-          $('#picture-slides').append(pictureDiv)
-        })
-        $('#detail-houseName').html(response.houseName);
-        $('#detail-owner').html(response.owner);
-        $('#detail-totalOccupants').html(response.totalOccupants);
-        $('#detail-address').html(response.address);
-        $('#detail-city').html(response.cityName);
-        $('#detail-province').html(response.provinceName);
-        let totalCost = 0;
-        duesDiv = ``;
-        response.duesTypes.forEach(function (dues) {
-          $(`#dues${dues.id}`).attr('checked', true);
-          totalCost += parseInt(dues.cost);
-          duesDiv += `<div class="col mt-3">
-                    <table>
-                      <tr>
-                        <td>${dues.duesName}</td>
-                      </tr>
-                      <tr>
-                        <td>${formatRupiah(dues.cost, true)}</td>
-                      </tr>
-                    </table>
-                  </div>`;
-        });
-        $('#dues').html(duesDiv);
-        $('#detail-totalCost').html(formatRupiah(totalCost, true));
-      })
+      $.ajax({
+        url: `${urlApi}/houses/monthlyDues/detail/${houseId}`,
+        headers: { "Authorization": `Bearer ${readJwt()}` },
+        method: "GET",
+        success: function (response) {
+          // console.log(JSON.stringify(response));
+          response.pictures.forEach(function (value) {
+            let pictureDiv = `<div class="swiper-slide">
+                                <img src="${urlApi}${value}">
+                              </div>`
+            $('#picture-slides').append(pictureDiv)
+          })
+          $('#detail-houseName').html(response.houseName);
+          $('#detail-owner').html(response.owner);
+          $('#detail-totalOccupants').html(response.totalOccupants);
+          $('#detail-address').html(response.address);
+          $('#detail-city').html(response.cityName);
+          $('#detail-province').html(response.provinceName);
+          let totalCost = 0;
+          duesDiv = ``;
+          response.duesTypes.forEach(function (dues) {
+            $(`#dues${dues.id}`).attr('checked', true);
+            totalCost += parseInt(dues.cost);
+            duesDiv += `<div class="col mt-3">
+                      <table>
+                        <tr>
+                          <td>${dues.duesName}</td>
+                        </tr>
+                        <tr>
+                          <td>${formatRupiah(dues.cost, true)}</td>
+                        </tr>
+                      </table>
+                    </div>`;
+          });
+          $('#dues').html(duesDiv);
+          $('#detail-totalCost').html(formatRupiah(totalCost, true));
+        }
+      });
     }
 
     fetchDetailMonthlyDuesHouse();
     // load all dues type for form edit dues 
-    $.get(`${urlApi}/duesTypes`, function (response) {
-      response.forEach(function (value, key) {
-        $('#data-dues').append(
-          `<div class="col">
-            <div class="form-check">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                name="duesType[]"
-                value="${value.id}"
-                id="dues${value.id}"
-              />
-              <label class="form-check-label" for="flexCheckDefault">
-                ${value.duesName}
-              </label>
-            </div>
-          </div>`
-        );
-      })
+    $.ajax({
+      url: `${urlApi}/duesTypes`,
+      headers: { "Authorization": `Bearer ${readJwt()}` },
+      method: "GET",
+      success: function (response) {
+        response.forEach(function (value, key) {
+          $('#data-dues').append(
+            `<div class="col">
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  name="duesType[]"
+                  value="${value.id}"
+                  id="dues${value.id}"
+                />
+                <label class="form-check-label" for="flexCheckDefault">
+                  ${value.duesName}
+                </label>
+              </div>
+            </div>`
+          );
+        })
+      }
+
     });
     $('#data-dues').on('change', 'input[name="duesType[]"]', function () {
 
@@ -521,6 +602,7 @@ $(document).ready(function () {
       $.ajax({
         type: "POST",
         url: `${urlApi}/houses/${houseId}/addDues`,
+        headers: { "Authorization": `Bearer ${readJwt()}` },
         data: JSON.stringify(duesTypes),
         dataType: "json",
         contentType: "application/json",

@@ -25,10 +25,12 @@
               $("select[name='ownerId']").on("change", function (e) {
                 $("#daftar-rumah").removeClass("d-none");
                 let result = [];
-                $.get(
-                  `${urlApi}/transactions/billingList/Users/${e.target.value}`,
-                  function (response) {
-                    console.log(response);
+                let arrHouseId = [];
+                $.ajax({
+                  url: `${urlApi}/transactions/billingList/Users/${e.target.value}`,
+                  method: "GET",
+                  headers: { Authorization: `Bearer ${readJwt()}` },
+                  success: function (response) {
                     $.each(response, function (index, value) {
                       result.push(`<div class="col">
                                   <div class="row row-cols-2">
@@ -93,16 +95,17 @@
                                 </div>
                               </div>`);
                       } else {
+                        arrHouseId.push(value.houseId);
                         result.push(`<div class="row mt-3">
-                                      <button class="btn btn-warning">Bayar Rumah Ini</button>
+                                      <button class="btn btn-warning" id="bayar" onclick="payOneHouse(${value.houseId})" data-id="${value.houseId}">Bayar Rumah Ini</button>
                                     </div>
                                   </div>
                                 </div>
                               </div>`);
                       }
                     });
-                    console.log(result);
                     $("#listHouse").html(result.join(""));
+                    $("#payAllHouses").attr("data-id", arrHouseId.join("-"));
                     new Swiper(".picture-houses", {
                       pagination: {
                         el: ".swiper-pagination",
@@ -113,8 +116,8 @@
                         disableOnInteraction: false,
                       },
                     });
-                  }
-                );
+                  },
+                });
               });
             </script>
           </form>
@@ -124,12 +127,53 @@
         <div class="card-body">
           <div class="row row-cols-1 row-cols-md-2" id="listHouse"></div>
           <div class="row mt-3">
-            <button type="button" class="btn btn-warning">
+            <button
+              type="button"
+              class="btn btn-warning"
+              data-id=""
+              id="payAllHouses"
+            >
               Bayar Semuanya
             </button>
           </div>
         </div>
       </div>
+      <script>
+        $("#payAllHouses").on("click", function () {
+          if (!confirm("yakin ingin bayar semua ?")) return;
+          $.ajax({
+            url: `${urlApi}/transactions`,
+            method: "POST",
+            headers: { Authorization: `Bearer ${readJwt()}` },
+            dataType: "json",
+            data: JSON.stringify({
+              houseId: $(this).attr("data-id").split("-"),
+            }),
+            processData: false,
+            contentType: "application/json",
+            success: function (response) {
+              alert("Transaction Berhasil");
+              window.location.href = "/admin/transactions";
+            },
+          });
+        });
+        function payOneHouse(houseId) {
+          if (!confirm("yakin ingin bayar 1 rumah ini ?")) return;
+          $.ajax({
+            url: `${urlApi}/transactions`,
+            method: "POST",
+            headers: { Authorization: `Bearer ${readJwt()}` },
+            dataType: "json",
+            data: JSON.stringify({ houseId: [houseId] }),
+            processData: false,
+            contentType: "application/json",
+            success: function (response) {
+              alert("Transaction Berhasil");
+              window.location.reload();
+            },
+          });
+        }
+      </script>
     </section>
   </body>
 </html>
