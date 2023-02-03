@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${title}" />
+    <link
+      rel="stylesheet"
+      th:href="@{/plugins\Bootstrap-5.2.3\css\bootstrap.min.css}"
+    />
+  </head>
+  <body>
+    <div
+      class="container d-flex justify-content-center align-items-center"
+      style="height: 100vh; width: 100vw"
+    >
+      <div
+        class="row row-cols-1 row-cols-md-2 align-items-center shadow border-top"
+        style="width: 70%"
+      >
+        <div class="col text-center py-5">
+          <img th:src="@{\images\login-ilustrastion.png}" alt="" width="360" />
+        </div>
+        <form action="#" method="POST" class="col py-5 px-4" id="form-login">
+          <div class="text-center text-uppercase text-primary">
+            <h2>Login Iuran</h2>
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label text-capitalize">Email</label>
+            <input type="email" name="email" class="form-control" required />
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label text-capitalize"
+              >password</label
+            >
+            <input
+              type="password"
+              name="password"
+              class="form-control"
+              required
+            />
+          </div>
+          <div class="mb-3 pt-3 row">
+            <button type="submit" class="btn btn-success">Login</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script
+      th:src="@{\plugins\Bootstrap-5.2.3\js\bootstrap.bundle.min.js}"
+    ></script>
+    <script th:src="@{\plugins\jQuery-3.6.0\jquery-3.6.0.min.js}"></script>
+    <script th:src="@{\js\main.js}"></script>
+    <script>
+      $("#form-login").on("submit", function (e) {
+        e.preventDefault();
+        let formData = new FormData(e.target);
+        const data = {};
+        formData.forEach((value, key) => {
+          data[key] = value;
+        });
+        $.ajax({
+          url: `${urlApi}/auth/login`,
+          method: "POST",
+          dataType: "json",
+          data: JSON.stringify(data),
+          processData: false,
+          contentType: "application/json",
+          success: function (response) {
+            saveJwtToStorage(response.token);
+            window.location.href = "/admin";
+          },
+        });
+      });
+    </script>
+  </body>
+</html>
